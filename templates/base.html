@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Better Zybooks - {% block title %}{% endblock %}</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="/img/favicon.ico"/>
+
+    <link href="/static/lib/bootstrap/css/bootstrap-reboot.min.css" rel="stylesheet">
+    <link href="/static/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/lib/bootstrap/css/bootstrap-grid.min.css" rel="stylesheet">
+    <!-- <link href="/css/main.css" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet">
+
+    <script src="/static/lib/jquery/jquery-3.3.1.min.js"></script>
+    <script src="/static/lib/popper/popper.min.js"></script>
+    <script src="/static/lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/lib/axios/js/axios.min.js"></script>
+
+    {% block header %}{% endblock %}
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-dark navbar-fluid navbar-expand-md bg-dark">
+        <a class="navbar-brand" href="/"><img src="/img/bike-icon.svg" style="max-height: 40px;">Test</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="nav navbar-nav">
+                {% if not data.user %}
+                <li class="nav-item{% if active == 'SignIn' %} active{% endif %}">
+                    <a class="nav-link" href="/signin">Sign In</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                  <a class="nav-link" href="/dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Account</a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <h6 class="dropdown-header">Hello {{ data.user.name }}!</h6>
+                    <a class="dropdown-item" href="/dashboard">Dashboard</a>
+                    <a class="dropdown-item" href="/signout">Log Out</a>
+                  </div>
+                </ul>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container-fluid content">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+</body>
+</html>

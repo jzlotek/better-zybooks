@@ -1,0 +1,7 @@
+[
+    {"name": "Append", "maxscore": 5, "file": "test.Tests.test_Append"},
+    {"name": "Prepend", "maxscore": 5, "file": "test.Tests.test_Prepend"},
+    {"name": "Remove", "maxscore": 5, "file": "test.Tests.test_Remove"},
+    {"name": "Find", "maxscore": 5, "file": "test.Tests.test_Find"},
+    {"name": "To Array", "maxscore": 5, "file": "test.Tests.test_To_Array"}
+]

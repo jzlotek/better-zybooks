@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% set active="Editor" %}
+
+{% block title %}
+{{ data.assignment }}
+{% endblock %}
+
+{% block header %}
+    <link href="/static/lib/prism/css/prism.css" rel="stylesheet">
+    <link href="/static/lib/prism/css/prism-line.css" rel="stylesheet">
+    <link href="/static/lib/prism/css/prism-live.css" rel="stylesheet">
+    <script src="/static/lib/bliss/js/bliss.shy.min.js"></script>
+    <script src="/static/lib/prism/js/prism.js"></script>
+    <script src="/static/lib/prism/js/prism-line.js"></script>
+    <script src="/static/lib/prism/js/prism-live.js"></script>
+    <script src="/static/lib/marked/js/marked.min.js"></script>
+    <script src="/static/lib/editor.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-md-8">
+    <div id="prism__wrapper overflow-auto">
+      <textarea id="prism_code" class="prism-live line-numbers language-python" style="height: 75vh;"></textarea>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="row-md-1">
+      <div class="row px-2">
+        <h5 class="mx-2">Score:</h5>
+        <h5 id="current__score">{{ data.currScore if data.currScore else 0 }}</h5>
+        <h5>/</h5>
+          <h5 id="max__score">{{ data.maxScore }}</h5>
+      </div>
+    </div>
+    <div class="row">
+      <div id="prompt"></div>
+    </div>
+    <div class="row-md-1">
+      <div class="row">
+        <button id="btn-run" type="button" data-loading-text="<div class='row'><span class='spinner-grow' role='status' aria-hidden='true'></span>Running...</div>" onclick="submit('test', this)" class="col-sm-5 btn-lg btn-default">
+          <span>Run Code</span>
+        </button>
+        <button id="btn-submit" type="button" onclick="submit('submit', this)" class="col-sm-7 btn-lg btn-primary" data-loading-text="<div class='row'><span class='spinner-grow' role='status' aria-hidden='true'></span>Grading...</div>">
+            <span>Submit for Grading</span
+        </button>
+      </div>
+    </div>
+    <div class="row-md-3">
+      <h3>Test Cases:</h3>
+      <ul class="list-group">
+        {% for case in data.testcases %}
+          <li id="testcase-{{ case.file | replace('.', '-') }}" class="list-group-item list-group-item-{{ 'success' if case.score == case.maxscore else 'dark' }}">
+            <div class="row">
+              <div class="col-10">{{ case.name }}</div>
+              <div class="col-2">{{ case.score }}/{{ case.maxscore }}</div>
+            </div>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="row-md-3">
+      <h3>Output:</h3>
+      <p id="output__container" class="overflow-auto" style="max-height: 200px;">
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
