@@ -1,4 +1,4 @@
-# better-zybooks
+# regrader
 
 ## Current State
 - ZyBooks checks stdout instead of logic
