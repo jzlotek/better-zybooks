@@ -10,4 +10,36 @@ Home
 
 
 {% block content %}
+<div class="content">
+  <div class="jumbotron my-2 bg-dark text-light">
+    <h1 class="text-center display-4"><img src="/static/img/done_all-24px.svg" style="height: 50px"/>ReGrader</h1>
+  </div>
+    <div class="row">
+        <div class="card col-sm-11 mx-auto my-2 text-center">
+          <div class="card-body my-5">
+            <div class="content-fluid">
+              <h5 class="card-title">Supported Languages</h5>
+              <ul class="list-group">
+                <li class="list-group-item list-group-item-secondary">Python3</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+    </div>
+    {% if not data.user %}
+    <div class="row">
+        <div class="card col-sm-11 mx-auto my-2 text-center">
+          <div class="card-body my-5">
+            <div class="content-fluid">
+              <h5 class="card-title">Start Now!</h5>
+              <p class="card-text">
+                Click the link below to sign up and start coding!
+              </p>
+              <a class="btn btn-primary pl-5 pr-5" href="/register">Sign Up</a>
+            </div>
+          </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

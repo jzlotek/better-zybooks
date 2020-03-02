@@ -1,4 +1,3 @@
-import functools
 import glob
 import json
 import os
@@ -9,7 +8,7 @@ from subprocess import PIPE
 import dotenv
 import loguru
 
-from flask import Blueprint, abort, render_template, send_file, request, session, redirect
+from flask import Blueprint, abort, render_template, send_file, session, redirect, request
 
 from auth.auth import authenticate
 from plugins.database import Database
@@ -31,7 +30,7 @@ class ClassHandler:
         available_tests = tests
         logger.info('Initialized {}', __name__)
 
-    def route(self):
+    def route(self) -> Blueprint:
         return _bp
 
 
@@ -62,21 +61,61 @@ def run_subprocess(cmds, directory):
 @_bp.route('/<string:class_id>/<string:assn_id>/attempt', methods=['GET'])
 @authenticate
 def _assignment_attempt(class_id, assn_id):
+    logger.info("{} {}", class_id, assn_id)
     user = session.get("user")
-    if user is None:
-        return abort(404)
     username = user.get("email")
 
     with Database() as db:
-        logger.info("{} {} {}", username, class_id, assn_id)
         attempt = db.get_latest_attempt(username, class_id, assn_id)
 
-        if len(attempt) == 0:
-            attempt = _class_files(class_id, assn_id, extra_file='template')
-        else:
+        if attempt.get("code", None) is not None:
             attempt = attempt.get("code")
+        else:
+            attempt = _class_files(class_id, assn_id, extra_file='template')
 
     return attempt
+
+
+@_bp.route('/', methods=['GET'])
+@authenticate
+def _classes():
+    user = session.get("user").get("email")
+    with Database() as db:
+        assignments = db.get_classes_not_registered(user)
+    return json.dumps(assignments)
+
+
+@_bp.route('/registered', methods=['GET'])
+@authenticate
+def _registered_class():
+    user = session.get("user").get("email")
+    with Database() as db:
+        classes = db.get_registered_classes(user)
+    return json.dumps(classes)
+
+
+@_bp.route('/<string:class_id>', methods=['GET'])
+@authenticate
+def _assignments(class_id):
+    with Database() as db:
+        assignments = db.get_assignments(class_id)
+    return json.dumps(assignments)
+
+
+@_bp.route('/<string:class_id>/register', methods=['POST'])
+@authenticate
+def _register_class(class_id):
+    user = session.get("user").get("email")
+
+    with Database() as db:
+        class_info = db.get_class_info(class_id)
+    if class_info is not None:
+        with Database() as db:
+            db.register_class(user, class_id)
+        return "success", 201
+    else:
+        return "fail", 404
+
 
 @_bp.route('/<string:class_name>/<string:assn_num>/prompt', methods=['GET'])
 @authenticate
@@ -87,7 +126,6 @@ def _class_files(class_name, assn_num, extra_file='prompt'):
         f = glob.glob(path + '*')
         return send_file(f[0])
     return abort(404)
-
 
 
 @_bp.route('/<string:class_name>/<string:assn_num>', methods=['GET', 'POST'])
@@ -110,6 +148,7 @@ def _class_assignment(class_name, assn_num):
 
         test_case_outputs = []
         score = 0
+        maxscore = 0
         if harness_method == 'submit':
             with open(os.path.abspath(f'{TEST_DIR}/{path}/testcases.json'), 'r') as f:
                 for testcase in json.load(f):
@@ -127,6 +166,7 @@ def _class_assignment(class_name, assn_num):
                     )
                     logger.info("Output: {}", ret)
                     score += testcase.get('maxscore') if ret == 0 else 0
+                    maxscore += testcase.get('maxscore')
 
                 data = {
                     "testcases": test_case_outputs,
@@ -134,25 +174,33 @@ def _class_assignment(class_name, assn_num):
                     "code": body.get("code")
                 }
                 with Database() as db:
-                    db.set_latest_attempt(session.get("user").get("email"), assn_num, json.dumps(data), score=score)
+                    db.set_latest_attempt(
+                        session.get("user").get("email"),
+                        assn_num,
+                        json.dumps(data),
+                        score=score,
+                        maxscore=maxscore
+                    )
         else:
             ret, output, error = run_subprocess(
                 ['bash', './run.sh', harness_method], f'{TEST_DIR}/{path}')
 
         return _create_return_json(ret, output, error, harness_method, score=score, data=test_case_outputs), 201
 
+    # GET
     test_cases = get_test_cases(class_name, assn_num)
     curr_score = 0
-    prev_attempt = None
     with Database() as db:
-        prev_attempt = db.get_latest_attempt(session.get("user").get("email"), class_name, assn_num)
-        logger.info(prev_attempt)
+        name = db.get_class_info(class_name).get("name")
+        prev_attempt = db.get_latest_attempt(
+            session.get("user").get("email"), class_name, assn_num)
         if prev_attempt:
             curr_score = prev_attempt.get("currScore")
             test_cases = prev_attempt.get("testcases")
-    logger.info("{}", test_cases)
+
     data = {
         "assignment": assn_num,
+        "name": name,
         "currScore": curr_score,
         "user": session.get("user"),
         "testcases": test_cases,

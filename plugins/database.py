@@ -24,12 +24,9 @@ class Database(object):
             }
         return None
 
-
     def create_user(self, username, password, name):
         self.database.execute(f'INSERT INTO users (username, password, name) VALUES (?, ?, ?);',
                               [username, password, name])
-        self.database.commit()
-
 
     def get_latest_attempt(self, username, class_id, assignment_id):
         data = self.database.execute(
@@ -38,7 +35,7 @@ class Database(object):
             A.class = C.class AND At.assignment = A.assignment
             AND At.user = ? AND A.class = ? AND A.assignment = ?
             AND At.attempt >= (
-                SELECT MAX(Atp.attempt) FROM attempts Atp WHERE 
+                SELECT MAX(Atp.attempt) FROM attempts Atp WHERE
                 Atp.user = At.user AND Atp.assignment = At.assignment
             )
             """,
@@ -47,15 +44,87 @@ class Database(object):
         if data:
             return json.loads(data[0])
         return {}
-    
 
-    def set_latest_attempt(self, username, assignment_id, data, score=0):
+    def get_num_attempts(self, username, class_id, assignment_id) -> int:
+        data = self.database.execute(
+            """
+            SELECT count(*) FROM assignments A, classes C, attempts At WHERE
+            A.class = C.class AND At.assignment = A.assignment
+            AND At.user = ? AND A.class = ? AND A.assignment = ?
+            """,
+            [username, class_id, assignment_id]
+        ).fetchone()
+        if data:
+            return int(data[0])
+        return 0
+
+    def register_class(self, username, class_id):
         self.database.execute(
             """
-            insert into attempts (user, assignment, data, score, attempt)
-            values (?, ?, ?, ?, null)
+            INSERT INTO registry (user, class)
+            values (?, ?)
             """,
-            [username, assignment_id, data, score]
+            [username, class_id]
+        )
+
+    def get_registered_classes(self, username) -> list:
+        data = self.database.execute(
+            """
+            SELECT R.class, C.name FROM registry R
+            INNER JOIN classes C ON C.class = R.class
+            WHERE R.user = ?
+            """,
+            [username]
+        ).fetchall()
+        if data:
+            return list(map(lambda x: {"class": x[0], "name": x[1]}, data))
+        return []
+
+    def get_assignments(self, class_id) -> list:
+        data = self.database.execute(
+            """SELECT assignment, class, name FROM assignments A WHERE A.class = ?""",
+            [class_id]
+        ).fetchall()
+        if data:
+            return list(map(lambda x: {"assignment": x[0], "class": x[1], "name": x[2]}, data))
+        return []
+
+    def get_classes(self) -> list:
+        data = self.database.execute(
+            """SELECT class, name FROM classes"""
+        ).fetchall()
+        if data:
+            return list(map(lambda x: {"class": x[0], "name": x[1]}, data))
+        return []
+
+    def get_classes_not_registered(self, user) -> list:
+        data = self.database.execute(
+            """SELECT class, name FROM classes
+            WHERE class NOT IN
+            (SELECT class FROM registry WHERE user = ?)
+            """,
+            [user]
+        ).fetchall()
+        if data:
+            return list(map(lambda x: {"class": x[0], "name": x[1]}, data))
+        return []
+
+    def get_class_info(self, class_id) -> list:
+        data = self.database.execute(
+            """SELECT class, name FROM classes WHERE class = ?""",
+            [class_id]
+        ).fetchone()
+        if data:
+            return {"class": data[0], "name": data[1]}
+        return None
+
+    def set_latest_attempt(self, username, assignment_id, data, score=0, maxscore=1):
+        self.database.execute(
+            """
+            insert into attempts (user, assignment, data, score, attempt, maxscore)
+            values (?, ?, ?, ?, null, ?)
+            """,
+            [username, assignment_id, data, score, maxscore]
         )
         self.database.commit()
 

@@ -1,0 +1,4 @@
+FILE_NAME=stack.py
+USER_TEST="python3 $FILE_NAME"
+SUBMIT_TEST="python3 -m unittest"
+

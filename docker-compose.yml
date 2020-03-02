@@ -1,32 +1,25 @@
-version: '3.4'
+version: '3'
 services:
-  flask:
-    container_name: flask
-
+  flask-container:
+    image: "flask-app-image"
     build:
       context: .
       dockerfile: docker/app.dockerfile
     ports:
-      - "5000:5000"
-    restart: always
-    networks:
-      - default
+      - 8163:8163
+    volumes:
+      - ./:/flask/app
   nginx:
-    container_name: nginx
+    container_name: "nginx-container"
     build:
       context: .
       dockerfile: docker/nginx.dockerfile
-    restart: always
-    tty: true
     ports:
-      - "8080:8080"
-      - "8443:8443"
+      - 8080:80
+      - 8443:443
     links:
-      - flask
-    networks:
-      - default
+      - "flask-container"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-networks:
-  default:
-    driver: bridge
+      - ./nginx/error.log:/etc/nginx/error_log.log
+      - ./nginx/cache/:/etc/nginx/cache

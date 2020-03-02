@@ -1,0 +1,7 @@
+[
+    {"name": "Top", "maxscore": 5, "file": "test.Tests.test_Top"},
+    {"name": "Put", "maxscore": 5, "file": "test.Tests.test_Put"},
+    {"name": "Pop", "maxscore": 5, "file": "test.Tests.test_Pop"},
+    {"name": "Can Pop", "maxscore": 5, "file": "test.Tests.test_Can_Pop"},
+    {"name": "To Array", "maxscore": 5, "file": "test.Tests.test_To_Array"}
+]

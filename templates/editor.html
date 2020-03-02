@@ -2,7 +2,7 @@
 {% set active="Editor" %}
 
 {% block title %}
-{{ data.assignment }}
+{{ data.name }}
 {% endblock %}
 
 {% block header %}
@@ -43,7 +43,7 @@
           <span>Run Code</span>
         </button>
         <button id="btn-submit" type="button" onclick="submit('submit', this)" class="col-sm-7 btn-lg btn-primary" data-loading-text="<div class='row'><span class='spinner-grow' role='status' aria-hidden='true'></span>Grading...</div>">
-            <span>Submit for Grading</span
+          <span>Submit for Grading</span>
         </button>
       </div>
     </div>

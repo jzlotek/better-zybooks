@@ -11,18 +11,35 @@ Dashboard
 
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div>
-      <input class="form-control" placeholder="Search for class" name="class-search" id="class-search" type="text"/>
-    </div>
-    <div class="col-md-8">
-      <div class="card">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+<div class="modal fade" id="register-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Register for Classes</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
-
+      <div class="modal-body">
+        <ul id="available-classes" class="list-group">
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
     </div>
+  </div>
+</div>
 
+<div class="container">
+  <div class="row my-4">
+    <h2 class="col-sm-12 col-md-8 mr-auto">My Classes</h2>
+    <button class="col-sm-12 col-md-4 btn btn-primary" data-toggle="modal" data-target="#register-modal">Register for Classes</button>
+  </div>
+
+  <div class="row">
+    <ul id="registered-classes" class="list-group col-12"></ul>
   </div>
 </div>
 {% endblock %}
