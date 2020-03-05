@@ -99,6 +99,10 @@ def _registered_class():
 def _assignments(class_id):
     with Database() as db:
         assignments = db.get_assignments(class_id)
+        for assignment in assignments:
+            attempt = db.get_latest_attempt(session.get("user").get("email"), class_id, assignment.get("assignment"))
+            assignment['currScore'] = attempt.get("currScore")
+            assignment['maxScore'] = sum([testcase.get("maxscore") for testcase in attempt.get("testcases")])
     return json.dumps(assignments)
 
 

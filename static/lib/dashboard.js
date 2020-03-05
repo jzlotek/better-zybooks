@@ -7,21 +7,43 @@ function getRegisteredClasses() {
         axios.get(`/class/${elem.class}`)
           .then(res => res.data)
           .then(assignments => {
+            let runningMaxScore = 0
+            let runningCurrScore = 0
             let assnString = ""
+            console.log(assignments)
             assignments.forEach(assignment => {
+              if (!assignment.currScore) {
+                assignment.currScore = 0
+              }
+              if (!assignment.maxScore) {
+                assignment.maxScore = 25
+              }
+              runningMaxScore += assignment.maxScore
+              runningCurrScore += assignment.currScore
               assnString += `
                 <a class="dropdown-item" href="/class/${elem.class}/${assignment.assignment}">
-                  ${assignment.name}
+                  ${assignment.name} - ${assignment.currScore}/${assignment.maxScore}
                 </a>
               `
             })
+            let score = ""
+            let scorePercent = runningCurrScore / runningMaxScore
+            if (scorePercent >= .8) {
+              score = "success"
+            } else if (scorePercent >= .7) {
+              score = "warning"
+            } else {
+              score = "danger"
+            }
+
             $("#registered-classes").append(
               `<li class="list-group-item">
                 <div class="dropdown row">
-                  <h3 class="pl-3 pr-3 col-11">${elem.name}</h3>
+                  <h3 class="pl-3 pr-3 col-10">${elem.name}</h3>
                   <button class="col-sm-12 col-md-1 btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-${elem.class}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   </button>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton-${elem.class}">${assnString}</div>
+                  <div class="col-sm-12 col-md-1 btn btn-${score}">${runningCurrScore} / ${runningMaxScore}</div>
                 </div>
               </li>`)
               })
