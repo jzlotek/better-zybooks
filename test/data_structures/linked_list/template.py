@@ -23,6 +23,18 @@ class LinkedList(object):
         """initialize LinkedList"""
         pass
 
+
+    def get_head(self):
+        """
+        Return the head node
+        """
+        pass
+
+    def get_tail(self):
+        """
+        Return the tail node
+        """
+
     def append(self, value):
         """
         Appends value to end of list

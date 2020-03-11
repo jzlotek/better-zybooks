@@ -50,6 +50,7 @@ def run_subprocess(cmds, directory):
         cwd=os.path.abspath(directory)
     )
 
+    output, error = "", ""
     try:
         output, error = process.communicate(timeout=MAX_TIMEOUT_SECONDS)
     except subprocess.TimeoutExpired:
